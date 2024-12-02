@@ -6,6 +6,7 @@ import { config } from "./config/app.config";
 import connectDatabase from "./database/database";
 import { errorHandler } from "./middlewares/errorHandler";
 import { HTTPSTATUS } from "./config/http.config";
+import { asyncHandler } from "./middlewares/asyncHandler";
 
 const app = express();
 // const BASE_PATH = config.BASE_PATH;
@@ -21,11 +22,14 @@ app.use(
 
 app.use(cookieParser());
 
-app.get("/", (req: Request, res: Response) => {
-  res.status(HTTPSTATUS.OK).json({
-    message: "Hello Subscribers!!!",
-  });
-});
+app.get(
+  "/",
+  asyncHandler(async (req: Request, res: Response) => {
+    res.status(HTTPSTATUS.OK).json({
+      message: "Hello Subscribers!!!",
+    });
+  })
+);
 
 app.use(errorHandler);
 
