@@ -9,5 +9,5 @@ export interface RegisterDto {
 export interface LoginDto {
   email: string;
   password: string;
-  useraAent?: string;
+  userAgent?: string;
 }

@@ -1,5 +1,4 @@
 import mongoose, { Document, Schema } from "mongoose";
-import { string } from "zod";
 import { thirtyDaysFromNow } from "../../common/utils/date-time";
 
 export interface SessionDocument extends Document {
@@ -16,7 +15,7 @@ const sessionSchema = new Schema<SessionDocument>({
     index: true,
     required: true,
   },
-  userAgent: { type: string, required: false },
+  userAgent: { type: String, required: false },
   createdAt: { type: Date, default: Date.now() },
   expiredAt: { type: Date, required: true, default: thirtyDaysFromNow },
 });

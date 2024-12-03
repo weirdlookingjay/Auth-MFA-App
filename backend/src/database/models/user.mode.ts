@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Document, Schema } from "mongoose";
 import { compareValue, hashValue } from "../../common/utils/bcrypt";
 
 interface UserPreferences {
@@ -14,26 +14,44 @@ export interface UserDocument extends Document {
   isEmailVerified: boolean;
   createdAt: Date;
   updatedAt: Date;
-  userPreference: UserPreferences;
+  userPreferences: UserPreferences;
   comparePassword(value: string): Promise<boolean>;
 }
-
 const userPreferencesSchema = new Schema<UserPreferences>({
   enable2FA: { type: Boolean, default: false },
-  emailNotification: { type: Boolean, default: false },
+  emailNotification: { type: Boolean, default: true },
   twoFactorSecret: { type: String, required: false },
 });
 
 const userSchema = new Schema<UserDocument>(
   {
-    name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    userPreference: { type: userPreferencesSchema, default: {} },
+    name: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      unique: true,
+      required: true,
+    },
+    password: {
+      type: String,
+      required: true,
+    },
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    userPreferences: {
+      type: userPreferencesSchema,
+      default: {},
+    },
   },
-  { timestamps: true, toJSON: {} }
+  {
+    timestamps: true,
+    toJSON: {},
+  }
 );
-
 userSchema.pre("save", async function (next) {
   if (this.isModified("password")) {
     this.password = await hashValue(this.password);
@@ -48,11 +66,10 @@ userSchema.methods.comparePassword = async function (value: string) {
 userSchema.set("toJSON", {
   transform: function (doc, ret) {
     delete ret.password;
-    delete ret.userPreference.twoFactorSecret;
-    return ret.userPreference;
+    delete ret.userPreferences.twoFactorSecret;
+    return ret;
   },
 });
 
 const UserModel = mongoose.model<UserDocument>("User", userSchema);
-
 export default UserModel;
