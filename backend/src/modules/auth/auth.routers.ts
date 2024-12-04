@@ -5,6 +5,7 @@ const authRoutes = Router();
 authRoutes.post("/register", authController.register);
 authRoutes.post("/login", authController.login);
 authRoutes.post("/verifyEmail", authController.verifyEmail);
+authRoutes.post("/password/forgot", authController.forgotPassword);
 
 authRoutes.get("/refresh", authController.refreshToken);
 
