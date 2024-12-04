@@ -20,6 +20,8 @@ import { config } from "../../config/app.config";
 import SessionModel from "../../database/models/session.mode";
 import UserModel from "../../database/models/user.mode";
 import VerificationCodeModel from "../../database/models/verification.mode";
+import { sendEmail } from "../../mailers/mailer";
+import { verifyEmailTemplate } from "../../mailers/templates/template";
 
 export class AuthService {
   public async register(registerData: RegisterDto) {
@@ -43,10 +45,17 @@ export class AuthService {
 
     const userId = newUser._id;
 
-    const verificationCode = await VerificationCodeModel.create({
+    const verification = await VerificationCodeModel.create({
       userId,
       type: VerificationEnum.EMAIL_VERIFICATION,
       expiresAt: fortyFivesMinutesFromNow(),
+    });
+
+    const verificationUrl = `${config.APP_ORIGIN}/config-account?code=${verification.code}`;
+
+    await sendEmail({
+      to: newUser.email,
+      ...verifyEmailTemplate(verificationUrl),
     });
 
     return {
